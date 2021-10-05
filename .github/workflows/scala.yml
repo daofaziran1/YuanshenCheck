@@ -1,7 +1,5 @@
 name: Scala CI
 
-
-
 on:
   push:
     branches: [ main ]
@@ -10,9 +8,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -22,6 +18,6 @@ jobs:
         distribution: 'adopt'
     - name: Run 
       env:
-        COOKIE: ${{COOKIE}}
+        COOKIE: ${{ COOKIE }}
       run: sbt run
 
