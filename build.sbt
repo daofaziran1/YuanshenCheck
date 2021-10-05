@@ -7,6 +7,7 @@ lazy val root = (project in file("."))
     organization := "com.example",
     name := "genshindailycheck",
     version := "0.0.1-SNAPSHOT",
+    trapExit := false,
     scalaVersion := scala3Version,
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
