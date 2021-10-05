@@ -1,5 +1,8 @@
 name: Scala CI
 
+env:
+  COOKIE: ${{COOKIE}}
+
 on:
   push:
     branches: [ main ]
@@ -20,5 +23,4 @@ jobs:
         distribution: 'adopt'
     - name: Run 
       run: sbt run
-      with:
-        COOKIE: ${{COOKIE}}
+
