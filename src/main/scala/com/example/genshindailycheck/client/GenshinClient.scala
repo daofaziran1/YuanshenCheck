@@ -79,16 +79,16 @@ class GenshinClient(cookie: String, extra: Boolean = false) {
         case Failure(_) => sys.error("something wrong")
       }
       resp =
-        GenshinClient.decodeResponse(Await.result(responseFuture, 60 seconds))
+        GenshinClient.decodeResponse(Await.result(responseFuture, 10 seconds))
       Await.ready(
         resp.entity.dataBytes
           .map(_.utf8String)
           .runForeach(result.append(_)),
-        3 minutes
+        10 seconds
       )
       result.toString()
     }
-    Await.result(strFuture, 3 minutes)
+    Await.result(strFuture, 10 seconds)
   }
   def BuildHttpRequestMessage(
       uri: Uri,

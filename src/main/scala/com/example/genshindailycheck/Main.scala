@@ -13,6 +13,7 @@ import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model._
 import scala.collection.mutable
 import io.jvm.uuid._
+import java.io.IOException
 
 case class SignDayEntity(
     retcode: Int,
@@ -215,10 +216,6 @@ given Decoder[UserGameRolesEntity] = new Decoder[UserGameRolesEntity] {
       new UserGameRolesEntity(retcode, message, data)
     }
 }
-@main def test={
-  println(UUID.random.toString.toUpperCase)
-  println(Config.getDS)
-}
 object Main {
   def main(args: Array[String]) = {
     import cats.syntax.either._
@@ -246,7 +243,7 @@ object Main {
         var rolesResult: UserGameRolesEntity =
           roleResult.as[UserGameRolesEntity].getOrElse(null)
         println(roleResult.noSpaces)
-        Await.result(rolesResult.checkOutCodeAndSleep, 60.seconds)
+//        Await.result(rolesResult.checkOutCodeAndSleep, 60.seconds)
         val accountBindCount = rolesResult.data.list.size
         println(s"账号$accountNum 绑定了$accountBindCount 个角色")
         for (i <- rolesResult.data.list.indices) {
@@ -259,7 +256,7 @@ object Main {
             )
           ).getOrElse(Json.Null).as[SignDayEntity].getOrElse(null)
           //检查第二步是否签到
-          Await.result(rolesResult.checkOutCodeAndSleep, 60.seconds)
+//          Await.result(rolesResult.checkOutCodeAndSleep, 60.seconds)
           println(signDayResult.data)
           val data = Map(
             "act_id" -> Config.ActId,
@@ -279,7 +276,7 @@ object Main {
           )
           println(res)
           val result = parse(res).getOrElse(Json.Null).as[SignResultEntity].getOrElse(null)
-          println(Await.result(result.checkOutCodeAndSleep, 60.seconds))
+//          println(Await.result(result.checkOutCodeAndSleep, 60.seconds))
         }
       })
     } catch {
@@ -292,5 +289,6 @@ object Main {
       }
     }
     println("签到结束")
+    System.exit(0)
   }
 }
