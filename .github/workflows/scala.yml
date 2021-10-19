@@ -28,5 +28,7 @@ jobs:
     - name: Run 
       env:
         COOKIE: ${{ secrets.COOKIE }}
+        token: ${{ secrets.token }}
+        device_id: ${{ secrets.device_id }}
       run: sbt run
 

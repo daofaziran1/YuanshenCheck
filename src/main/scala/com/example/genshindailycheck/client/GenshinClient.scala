@@ -43,7 +43,7 @@ class GenshinClient(cookie: String, extra: Boolean = false) {
     throw new java.lang.IllegalArgumentException("必须设置cookie")
   }
   def GetExecuteRequest(path: String, parameters: String = "") = {
-    ExecuteRequest(
+    ExecuteGenshinRequest(
       Uri(s"${GenshinClient.OpenApi}$path$parameters"),
       HttpMethods.GET,
       None
@@ -54,50 +54,26 @@ class GenshinClient(cookie: String, extra: Boolean = false) {
       parameters: String = "",
       entity: Option[RequestEntity]
   ) = {
-    ExecuteRequest(
+    ExecuteGenshinRequest(
       Uri(s"${GenshinClient.OpenApi}$path$parameters"),
       HttpMethods.POST,
       entity
     )
   }
-  def ExecuteRequest(
+  def ExecuteGenshinRequest(
       uri: Uri,
       method: HttpMethod,
       entity: Option[RequestEntity]
-  ) = {
+  ):String = {
     import GenshinClient.system
     import GenshinClient.executionContext
+    import GenshinClient.ExecuteRequest
     val responseFuture: Future[HttpResponse] = {
-      Http().singleRequest(BuildHttpRequestMessage(uri, method, entity))
-    }
-    var resp: HttpResponse = null
-    val strFuture = Future {
-      val result: StringBuilder = new StringBuilder()
-      responseFuture.onComplete {
-        case Success(res) =>
-          resp = res
-        case Failure(_) => sys.error("something wrong")
-      }
-      resp =
-        GenshinClient.decodeResponse(Await.result(responseFuture, 10 seconds))
-      Await.ready(
-        resp.entity.dataBytes
-          .map(_.utf8String)
-          .runForeach(result.append(_)),
-        10 seconds
+      Http().singleRequest(
+        RequestHeaders.GenshinRequestMessage(method, uri, cookie, entity, extra)
       )
-      result.toString()
     }
-    Await.result(strFuture, 10 seconds)
-  }
-  def BuildHttpRequestMessage(
-      uri: Uri,
-      method: HttpMethod,
-      entity: Option[RequestEntity]
-  ) = {
-    val request =
-      RequestHeaders.GenshinRequestMessage(method, uri, cookie, entity,extra)
-    request
+    ExecuteRequest(Await.result(responseFuture, 10 seconds))
   }
 }
 object GenshinClient {
@@ -130,5 +106,39 @@ object GenshinClient {
       content.length,
       Source(ByteString(content) :: Nil)
     )
+  }
+  def ExecuteRequest(request: HttpResponse): String = {
+    val resp = decodeResponse(request)
+    val strFuture = Future {
+      val result: StringBuilder = new StringBuilder()
+      Await.ready(
+        resp.entity.dataBytes
+          .map(_.utf8String)
+          .runForeach(result.append(_)),
+        10 seconds
+      )
+      result.toString()
+    }
+    Await.result(strFuture, 10 seconds)
+  }
+  def ExecuteGenshinCloudRequest(
+      method: HttpMethod,
+      uri: Uri,
+      token: String,
+      device_id: String,
+      entity: Option[RequestEntity]
+  ) = {
+    val responseFuture: Future[HttpResponse] = {
+      Http().singleRequest(
+        RequestHeaders.GenshinCloudRequest(
+          method,
+          uri,
+          token,
+          device_id,
+          entity
+        )
+      )
+    }
+    ExecuteRequest(Await.result(responseFuture, 10 seconds))
   }
 }

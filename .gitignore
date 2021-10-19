@@ -2,6 +2,6 @@
 *.log
 *.metals
 *.vscode
-project
-target
-.bloop
+*target
+*.bloop
+.idea
