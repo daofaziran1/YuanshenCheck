@@ -231,9 +231,11 @@ class GenshinActor extends Actor {
       val client = new GenshinClient(cookie)
       var roleResult = parse(
         client
-          .GetExecuteRequest(
+          .ExecuteGenshinRequest(
             Config.GetUserGameRolesByCookie,
-            "game_biz=hk4e_cn"
+            "game_biz=hk4e_cn",
+            HttpMethods.GET,
+            None
           )
       ).getOrElse(Json.Null)
       var rolesResult: UserGameRolesEntity =
@@ -245,9 +247,11 @@ class GenshinActor extends Actor {
         val role = rolesResult.data.list(i)
         println(role)
         val signDayResult = parse(
-          client.GetExecuteRequest(
+          client.ExecuteGenshinRequest(
             Config.GetBbsSignRewardInfo,
-            s"act_id=${Config.ActId}&region=${role.region}&uid=${role.game_uid}"
+            s"act_id=${Config.ActId}&region=${role.region}&uid=${role.game_uid}",
+            HttpMethods.GET,
+            None
           )
         ).getOrElse(Json.Null).as[SignDayEntity].getOrElse(null)
         val data = Map(
@@ -257,9 +261,10 @@ class GenshinActor extends Actor {
         )
         println(data.asJson.noSpaces)
         val signClient = new GenshinClient(cookie, true)
-        val res = signClient.PostExecuteRequest(
+        val res = signClient.ExecuteGenshinRequest(
           Config.PostSignInfo,
           "",
+          HttpMethods.POST,
           Some(
             HttpEntity(
               data.asJson.noSpaces

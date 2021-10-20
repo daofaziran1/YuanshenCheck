@@ -42,35 +42,24 @@ class GenshinClient(cookie: String, extra: Boolean = false) {
   if (cookie.isEmpty) {
     throw new java.lang.IllegalArgumentException("必须设置cookie")
   }
-  def GetExecuteRequest(path: String, parameters: String = "") = {
-    ExecuteGenshinRequest(
-      Uri(s"${GenshinClient.OpenApi}$path$parameters"),
-      HttpMethods.GET,
-      None
-    )
-  }
-  def PostExecuteRequest(
+  def ExecuteGenshinRequest(
       path: String,
       parameters: String = "",
-      entity: Option[RequestEntity]
-  ) = {
-    ExecuteGenshinRequest(
-      Uri(s"${GenshinClient.OpenApi}$path$parameters"),
-      HttpMethods.POST,
-      entity
-    )
-  }
-  def ExecuteGenshinRequest(
-      uri: Uri,
       method: HttpMethod,
       entity: Option[RequestEntity]
-  ):String = {
+  ): String = {
     import GenshinClient.system
     import GenshinClient.executionContext
     import GenshinClient.ExecuteRequest
     val responseFuture: Future[HttpResponse] = {
       Http().singleRequest(
-        RequestHeaders.GenshinRequestMessage(method, uri, cookie, entity, extra)
+        RequestHeaders.GenshinRequestMessage(
+          method,
+          Uri(s"${GenshinClient.OpenApi}$path$parameters"),
+          cookie,
+          entity,
+          extra
+        )
       )
     }
     ExecuteRequest(Await.result(responseFuture, 10 seconds))
