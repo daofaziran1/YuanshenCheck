@@ -130,4 +130,22 @@ object GenshinClient {
     }
     ExecuteRequest(Await.result(responseFuture, 10 seconds))
   }
+  def ExecuteGladosRequest(
+      method: HttpMethod,
+      uri: Uri,
+      token: String,
+      entity: Option[RequestEntity]
+  ) = {
+    val responseFuture: Future[HttpResponse] = {
+      Http().singleRequest(
+        RequestHeaders.GladosRequest(
+          method,
+          uri,
+          token,
+          entity
+        )
+      )
+    }
+    ExecuteRequest(Await.result(responseFuture, 10 seconds))
+  }
 }

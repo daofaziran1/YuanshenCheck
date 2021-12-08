@@ -34,25 +34,13 @@ class CloudActor extends Actor {
           None
         )
       ).getOrElse(Json.Null)
-      var coin = walletRes.hcursor
-        .downField("data")
-        .downField("coin")
-        .downField("coin_num")
-        .as[Int]
-        .getOrElse(0)
       var free_time = walletRes.hcursor
         .downField("data")
         .downField("free_time")
         .downField("free_time")
         .as[Int]
         .getOrElse(0)
-      var total_time = walletRes.hcursor
-        .downField("data")
-        .downField("total_time")
-        .downField("total_time")
-        .as[Int]
-        .getOrElse(0)
-      println(s"coin:$coin,free_time:$free_time,total_time:$total_time")
+      println(s"free_time:$free_time")
     }
     case _ => println("cloud")
   }
