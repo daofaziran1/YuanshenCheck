@@ -11,8 +11,11 @@ import concurrent.duration.*
 import akka.actor.Props
 import scala.concurrent.Future
 import scala.concurrent.Await
+import akka.actor.PoisonPill
 
 object Main {
+  var num=0
+  val numOfActor=3
   def main(args: Array[String]) = {
     println("开始签到")
     val system = ActorSystem("system")
@@ -36,8 +39,10 @@ object Main {
     glados_tokens.foreach(tok => {
       gladosActor ! GladosRequest(tok)
     })
-    import scala.language.postfixOps
-    Await.ready(system.terminate(), 10 seconds)
+    gladosActor ! Stop()
+    checkActor ! Stop()
+    cloudActor ! Stop()
+    Await.result(system.whenTerminated, Duration.Inf)
     println("签到结束")
     System.exit(0)
   }

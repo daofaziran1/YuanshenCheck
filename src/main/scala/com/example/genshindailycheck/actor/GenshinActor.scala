@@ -11,8 +11,7 @@ import scala.concurrent.*
 import ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import com.example.genshindailycheck.client.*
-import com.example.genshindailycheck.Config
-import com.example.genshindailycheck.SafeUtil
+import com.example.genshindailycheck.*
 import spray.json.DefaultJsonProtocol
 import io.circe.HCursor
 import akka.http.scaladsl.model.*
@@ -272,6 +271,16 @@ class GenshinActor extends Actor {
           )
         )
         println(res)
+      }
+    }
+    case Stop() => {
+      println("停止")
+      Main.num += 1
+      if (Main.num == Main.numOfActor) {
+        context.system.terminate()
+        context.stop(self)
+      } else {
+        context.stop(self)
       }
     }
     case _ => println("GenshinActor")

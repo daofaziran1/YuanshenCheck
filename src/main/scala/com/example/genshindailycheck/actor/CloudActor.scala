@@ -10,7 +10,7 @@ import scala.concurrent.*
 import akka.actor.Actor
 import com.example.genshindailycheck.client.GenshinClient.*
 import akka.http.scaladsl.model.HttpMethods
-import com.example.genshindailycheck.Config
+import com.example.genshindailycheck.*
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.HttpEntity
 case class GenshinCloudRequest(token: String, device_id: String)
@@ -41,6 +41,16 @@ class CloudActor extends Actor {
         .as[Int]
         .getOrElse(0)
       println(s"free_time:$free_time")
+    }
+    case Stop() => {
+      println("停止")
+      Main.num += 1
+      if (Main.num == Main.numOfActor) {
+        context.system.terminate()
+        context.stop(self)
+      } else {
+        context.stop(self)
+      }
     }
     case _ => println("cloud")
   }

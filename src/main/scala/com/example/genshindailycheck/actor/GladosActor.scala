@@ -10,29 +10,32 @@ import scala.concurrent.*
 import akka.actor.Actor
 import com.example.genshindailycheck.client.GenshinClient.*
 import akka.http.scaladsl.model.HttpMethods
-import com.example.genshindailycheck.Config
+import com.example.genshindailycheck.*
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.HttpEntity
 import java.util.Date
 import akka.http.scaladsl.model.ContentTypes
 case class GladosRequest(token: String)
-
+case class Stop()
 class GladosActor extends Actor {
   def baseUrl = "https://glados.rocks"
   override def receive: Receive = {
     case GladosRequest(token) => {
-      val checkRes = parse(ExecuteGladosRequest(
-        HttpMethods.POST,
-        Uri(s"${baseUrl}/api/user/checkin"),
-        token,
-        Some(
-          HttpEntity(
-            ContentTypes.`application/json`,
-            """{"token":"glados_network"}"""
+      val checkRes = parse(
+        ExecuteGladosRequest(
+          HttpMethods.POST,
+          Uri(s"${baseUrl}/api/user/checkin"),
+          token,
+          Some(
+            HttpEntity(
+              ContentTypes.`application/json`,
+              """{"token":"glados_network"}"""
+            )
           )
         )
-      )).getOrElse(Json.Null)
-      val message=checkRes.hcursor.downField("message").as[String].getOrElse("")
+      ).getOrElse(Json.Null)
+      val message =
+        checkRes.hcursor.downField("message").as[String].getOrElse("")
       println(s"${message}")
       val statusRes = parse(
         ExecuteGladosRequest(
@@ -48,6 +51,16 @@ class GladosActor extends Actor {
         .as[Double]
         .getOrElse(0)
       println(s"还剩${days.toInt}天")
+    }
+    case Stop() => {
+      println("停止")
+      Main.num += 1
+      if (Main.num == Main.numOfActor) {
+        context.system.terminate()
+        context.stop(self)
+      } else {
+        context.stop(self)
+      }
     }
     case _ => println("cloud")
   }
