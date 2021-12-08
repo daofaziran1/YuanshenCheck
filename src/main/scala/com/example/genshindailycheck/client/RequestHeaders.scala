@@ -27,7 +27,8 @@ object RequestHeaders {
     RawHeader("Connection", "Keep-Alive")
   )
   def GladosHeaders(token:String)=Seq(
-    RawHeader("Cookie",token)
+    RawHeader("Cookie",token),
+    RawHeader("Content-Type","application/json")
   )
   def GenshinCloudRequest(
       method: HttpMethod,

@@ -33,8 +33,8 @@ object Main {
       cloudActor ! GenshinCloudRequest(tokens(i), device_ids(i))
     }
     val glados_tokens = glados.split("#")
-    glados_tokens.foreach(token => {
-      gladosActor ! GladosRequest(token)
+    glados_tokens.foreach(tok => {
+      gladosActor ! GladosRequest(tok)
     })
     import scala.language.postfixOps
     Await.ready(system.terminate(), 10 seconds)
